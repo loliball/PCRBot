@@ -40,7 +40,10 @@ token = bingfun的access_token
 ```
 
 环境需求java11及以上，启动命令  
-```java -jar PCRBot-1.0.0.jar```
+正常情况下使用  
+```java -jar PCRBot-1.0.0.jar```   
+如果出现乱码或者时间错误，请使用  
+```java -jar -Dfile.encoding=UTF-8 -Duser.timezone=GMT+8 PCRBot-1.0.0.jar```
 
 
 # 关于bigfun的access_token
