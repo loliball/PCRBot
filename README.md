@@ -1,5 +1,6 @@
 # PCRBot
 PCR 公主连接国服 Bigfun工会战信息查询  
+本项目直接基于[mirai-core](https://github.com/mamoe/mirai)开发
 
 
 # 功能&命令
