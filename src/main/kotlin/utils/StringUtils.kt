@@ -1,5 +1,8 @@
 package utils
 
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.text.DecimalFormat
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeFormatterBuilder
@@ -14,3 +17,7 @@ val LOCAL_DATE_TIME: DateTimeFormatter = DateTimeFormatterBuilder()
     .toFormatter()
 
 fun <T> T?.log() = apply { println(this) }
+
+inline fun <reified T : Any> T.toJson() = Json.encodeToString(this)
+
+inline fun <reified T> String.fromJson() = Json.decodeFromString<T>(this)

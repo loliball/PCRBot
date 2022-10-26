@@ -1,7 +1,4 @@
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import net.mamoe.mirai.BotFactory
 import net.mamoe.mirai.contact.Member
 import net.mamoe.mirai.event.events.GroupEvent
@@ -67,11 +64,26 @@ private suspend fun init() {
                 val token = it.groupValues[1]
                 subject.sendMessage("设置了新的token:\n$token")
                 Bigfuck.setToken(token)
-            }
+            } else subject.sendMessage("需要管理员权限")
         }
         case("/config", true) reply {
-            Config.load()
-            "重载配置成功"
+            if (checkPermission(owner)) {
+                Config.load()
+                "重载配置成功"
+            } else "需要管理员权限"
+        }
+        case("/auth", true) reply {
+            if (checkPermission(owner)) {
+                if (BigfuckAPI.auth()) {
+                    "授权成功"
+                } else "授权失败"
+            } else "需要管理员权限"
+        }
+    }
+
+    BigfuckAPI.failedCallback = {
+        CoroutineScope(Dispatchers.Default).launch {
+            bot.getGroup(group)?.sendMessage(it)
         }
     }
 

@@ -1,6 +1,8 @@
 package pcr
 
+import kotlinx.serialization.Serializable
 import utils.Config
+import utils.toJson
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
@@ -68,6 +70,37 @@ object Bigfuck {
                 append("&")
             }
         }
+    }
+
+    @Serializable
+    data class AuthBody(
+        val target: String,
+        val action: Int,
+        val device_number: String,
+        val access_token: String,
+        val ts: Long,
+        val rid: Long,
+        var sign: String? = null
+    )
+
+    fun getAuthUrl()  = "https://api.bigfun.cn/webview/android?target=gzlj-authorization/a&action=1"
+
+    fun getAuthBody(): String {
+        val time = System.currentTimeMillis()
+        val authBody = AuthBody(
+            target = "gzlj-authorization\\/a",
+            action = 1,
+            device_number = device_number,
+            access_token = "5b055f561701d478a25ad087ffd80791",
+            ts = time / 1000,
+            rid = time / 1000 + rid()
+        )
+        val list = mutableListOf<String>()
+        list.add("target=gzlj-authorization/a")
+        list.add("action=1")
+        list.add("device_number=${authBody.device_number}")
+        authBody.sign = sign(list, authBody.ts, authBody.rid)
+        return authBody.toJson()
     }
 
     fun getTimelineUrl(page: Int): String {

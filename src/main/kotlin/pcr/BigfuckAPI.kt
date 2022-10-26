@@ -5,12 +5,36 @@ import kotlinx.serialization.json.Json
 import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import pcr.bean.*
 
 object BigfuckAPI {
 
+    var failedCallback: ((reason: String) -> Unit)? = null
+
     private val json = Json {
         ignoreUnknownKeys = true
+    }
+
+    fun auth(): Boolean {
+        val request = Request.Builder()
+            .url(Bigfuck.getAuthUrl())
+            .post(Bigfuck.getAuthBody().toRequestBody())
+            .headers(headers)
+            .build()
+        return runCatching {
+            client.newCall(request).execute().body?.string()?.let { json1 ->
+                val returnData = json.decodeFromString<ReturnData<List<String>>>(json1)
+                if (returnData.invalid()) {
+                    println("url: ${Bigfuck.getAuthUrl()} raw: $json1")
+                    false
+                } else {
+                    true
+                }
+            }
+        }.onFailure {
+            it.printStackTrace()
+        }.getOrNull() ?: false
     }
 
     fun searchByName(name: String) = request<SearchClanInfoList>(Bigfuck.getSearchByNameUrl(name))
@@ -42,8 +66,10 @@ object BigfuckAPI {
             .url(url)
             .headers(headers)
             .build()
+        var bodyString: String? = null
         return runCatching {
-            client.newCall(request).execute().body?.string()?.let { json1 ->
+            bodyString = client.newCall(request).execute().body?.string()
+            bodyString?.let { json1 ->
                 val returnData = json.decodeFromString<ReturnData<R>>(json1)
                 if (returnData.invalid()) {
                     println("url: $url raw: $json1")
@@ -52,8 +78,13 @@ object BigfuckAPI {
                     returnData.data
                 }
             }
-        }.onFailure {
-            it.printStackTrace()
+        }.onFailure { err ->
+            err.printStackTrace()
+            if (bodyString != null) {
+                failedCallback?.invoke(bodyString!!)
+            } else {
+                err.message?.let { failedCallback?.invoke(it) }
+            }
         }.getOrNull()
     }
 
@@ -78,7 +109,7 @@ object BigfuckAPI {
             .add("Accept", "application/vnd.api+json")
             .add("BF-Json-Api-Version", "v1.0")
             .add("BF-Client-Type", "BF-ANDROID")
-            .add("BF-Client-Version", "3.7.1")
+            .add("BF-Client-Version", "3.9.9")
             .add("BF-Client-Data", Bigfuck.BF_Client_Data)
             .add("Host", "api.bigfun.cn")
             .add("Connection", "Keep-Alive")
