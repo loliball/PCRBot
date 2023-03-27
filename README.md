@@ -46,7 +46,3 @@ cookie = bingfun网页的cookie
 如果出现乱码或者时间错误，请使用  
 ```java -jar -Dfile.encoding=UTF-8 -Duser.timezone=GMT+8 PCRBot-1.0.0.jar```
 
-
-# 关于bigfun的access_token
-可以通过HttpCanary等抓包工具，从请求链接中得到  
-token是一串32位长的数字和小写字母组成的随机字符串
