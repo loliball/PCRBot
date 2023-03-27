@@ -36,7 +36,8 @@ qq.id = qq号
 qq.pwd = qq密码  
 qq.owner = 开发者qq  
 qq.group = 工会战群  
-token = bingfun的access_token  
+qq.protocol = MACOS
+cookie = bingfun网页的cookie
 ```
 
 环境需求java11及以上，启动命令  
