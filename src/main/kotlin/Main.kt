@@ -1,11 +1,11 @@
 import kotlinx.coroutines.*
 import net.mamoe.mirai.BotFactory
-import net.mamoe.mirai.contact.Member
+import net.mamoe.mirai.auth.BotAuthorization
 import net.mamoe.mirai.event.events.GroupEvent
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.event.subscribeMessages
+import net.mamoe.mirai.event.subscribeUserMessages
 import net.mamoe.mirai.utils.BotConfiguration
-import pcr.Bigfuck
 import pcr.BigfuckAPI
 import pcr.bean.TimeRange
 import pcr.bean.format
@@ -21,17 +21,19 @@ suspend fun main(args: Array<String>) {
 }
 
 private suspend fun init() {
+
     val qq = Config["qq.id"].toLong()
-    val pwd = Config["qq.pwd"]
+//    val pwd = Config["qq.pwd"]
     val owner = Config["qq.owner"].toLong()
     val group = Config["qq.group"].toLong()
+    val protocolConfig = Config["qq.protocol"]
 
-    val bot = BotFactory.newBot(qq, pwd) {
+    val bot = BotFactory.newBot(qq, BotAuthorization.byQRCode()) {
         fileBasedDeviceInfo()
         redirectBotLogToDirectory()
         redirectNetworkLogToDirectory()
         enableContactCache()
-        protocol = BotConfiguration.MiraiProtocol.IPAD
+        protocol = BotConfiguration.MiraiProtocol.valueOf(protocolConfig)
     }
 
     bot.login()
@@ -59,25 +61,14 @@ private suspend fun init() {
         matching("查线 (.+)".toRegex()) {
             reply(BigfuckAPI.searchByName(it.groupValues[1])!!.format())
         }
-        matching("/token (.+)".toRegex()) {
-            if (checkPermission(owner)) {
-                val token = it.groupValues[1]
-                subject.sendMessage("设置了新的token:\n$token")
-                Bigfuck.setToken(token)
-            } else subject.sendMessage("需要管理员权限")
+        matching("/cookie (.+)".toRegex()) {
+            val token = it.groupValues[1]
+            subject.sendMessage("设置了新的cookie:\n$token")
+            BigfuckAPI.cookie = token
         }
         case("/config", true) reply {
-            if (checkPermission(owner)) {
-                Config.load()
-                "重载配置成功"
-            } else "需要管理员权限"
-        }
-        case("/auth", true) reply {
-            if (checkPermission(owner)) {
-                if (BigfuckAPI.auth()) {
-                    "授权成功"
-                } else "授权失败"
-            } else "需要管理员权限"
+            Config.load()
+            "重载配置成功"
         }
     }
 
@@ -89,9 +80,6 @@ private suspend fun init() {
 
     bot.join()
 }
-
-private fun MessageEvent.checkPermission(owner: Long) =
-    (sender as Member).permission.level > 0 || sender.id == owner
 
 suspend fun MessageEvent.reply(str: String) = subject.sendMessage(str)
 

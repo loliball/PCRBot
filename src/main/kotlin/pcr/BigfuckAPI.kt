@@ -5,8 +5,9 @@ import kotlinx.serialization.json.Json
 import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
 import pcr.bean.*
+import utils.Config
+import utils.log
 
 object BigfuckAPI {
 
@@ -14,27 +15,6 @@ object BigfuckAPI {
 
     private val json = Json {
         ignoreUnknownKeys = true
-    }
-
-    fun auth(): Boolean {
-        val request = Request.Builder()
-            .url(Bigfuck.getAuthUrl())
-            .post(Bigfuck.getAuthBody().toRequestBody())
-            .headers(headers)
-            .build()
-        return runCatching {
-            client.newCall(request).execute().body?.string()?.let { json1 ->
-                val returnData = json.decodeFromString<ReturnData<List<String>>>(json1)
-                if (returnData.invalid()) {
-                    println("url: ${Bigfuck.getAuthUrl()} raw: $json1")
-                    false
-                } else {
-                    true
-                }
-            }
-        }.onFailure {
-            it.printStackTrace()
-        }.getOrNull() ?: false
     }
 
     fun searchByName(name: String) = request<SearchClanInfoList>(Bigfuck.getSearchByNameUrl(name))
@@ -103,17 +83,18 @@ object BigfuckAPI {
         }.getOrNull()
     }
 
-    private val headers by lazy {
-        Headers.Builder()
-            .add("Content-Type", "application/vnd.api+json")
-            .add("Accept", "application/vnd.api+json")
-            .add("BF-Json-Api-Version", "v1.0")
-            .add("BF-Client-Type", "BF-ANDROID")
-            .add("BF-Client-Version", "3.9.9")
-            .add("BF-Client-Data", Bigfuck.BF_Client_Data)
-            .add("Host", "api.bigfun.cn")
-            .add("Connection", "Keep-Alive")
-            .add("User-Agent", "okhttp/3.12.12")
-            .build()
-    }
+    var cookie = Config["cookie"]
+
+    private val headers: Headers
+        get() {
+            return Headers.Builder()
+                .add("Content-Type", "application/vnd.api+json")
+                .add("Accept", "application/vnd.api+json")
+                .add("Host", "bigfun.bilibili.com")
+                .add("Connection", "Keep-Alive")
+                .add("User-Agent", "okhttp/3.12.12")
+                .add("Cookie", cookie)
+                .build()
+        }
+
 }

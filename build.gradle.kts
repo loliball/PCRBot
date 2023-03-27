@@ -1,21 +1,21 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.7.10"
-    kotlin("plugin.serialization") version "1.7.10"
+    kotlin("jvm") version "1.8.10"
+    kotlin("plugin.serialization") version "1.8.10"
     application
 }
 
 group = "loli.ball"
-version = "1.0.1"
+version = "1.0.4"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    api("net.mamoe:mirai-core:2.12.3")
-//    implementation("org.xerial:sqlite-jdbc:3.39.3.0")
+    api("net.mamoe:mirai-core:2.15.0-M1")
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
     testImplementation(kotlin("test"))
 }
 
