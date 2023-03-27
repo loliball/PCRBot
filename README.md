@@ -16,7 +16,7 @@ PCR 公主连接国服 Bigfun工会战信息查询
 ```
 ### 以下命令需要管理员或开发者才能使用  
 ```
-/token [access_token]：设置新的bigfun的token
+/cookie [cookie]：设置新的bigfun的cookie，只需要session-api=xxxxxxxx
 /config ：从文件中重新载入配置，机器人不会重新登陆
 ```
 
