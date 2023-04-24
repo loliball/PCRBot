@@ -1,6 +1,7 @@
 package pcr.bean
 
 import kotlinx.serialization.Serializable
+import pcr.BossRemHealthCalc
 import utils.xxxx
 
 @Serializable
@@ -20,6 +21,23 @@ data class NowBoss(
             ==========
             会战将于${day_list[0]}结束
         """.trimIndent()
+
+    fun format(boss: List<BossRemHealthCalc.BossResult>): String {
+        val bossHealth = boss.joinToString("") {
+            """
+                ----------
+                ${it.name}(${it.bossIndex + 1})，${it.lap}周目
+                ${it.rem.xxxx}/${it.max.xxxx}"""
+        }
+        return """
+                ${clan_info.name}
+                当前排名${clan_info.last_ranking}(${clan_info.last_total_ranking})
+                ==========
+                ${battle_info.name}boss信息$bossHealth
+                ==========
+                会战将于${day_list[0]}结束
+            """.trimIndent()
+    }
 }
 
 @Serializable

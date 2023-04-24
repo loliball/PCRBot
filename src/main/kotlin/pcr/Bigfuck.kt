@@ -31,7 +31,7 @@ object Bigfuck {
             return getDayUrl(format.format(Date(now.timeInMillis)))
         }
 
-    private fun getDayUrl(day: String): String {
+    fun getDayUrl(day: String): String {
         val list = mutableListOf<String>()
         list.add("target=gzlj-clan-day-report/a")
         list.add("date=$day")

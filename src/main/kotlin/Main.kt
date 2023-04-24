@@ -1,17 +1,21 @@
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import net.mamoe.mirai.BotFactory
 import net.mamoe.mirai.auth.BotAuthorization
 import net.mamoe.mirai.event.events.GroupEvent
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.event.subscribeMessages
-import net.mamoe.mirai.event.subscribeUserMessages
 import net.mamoe.mirai.utils.BotConfiguration
 import pcr.BigfuckAPI
+import pcr.BossRemHealthCalc
 import pcr.bean.TimeRange
 import pcr.bean.format
 import pcr.bean.ramin
 import pcr.bean.report
 import utils.Config
+import utils.log
 import java.time.LocalDateTime
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -23,12 +27,13 @@ suspend fun main(args: Array<String>) {
 private suspend fun init() {
 
     val qq = Config["qq.id"].toLong()
-//    val pwd = Config["qq.pwd"]
     val owner = Config["qq.owner"].toLong()
     val group = Config["qq.group"].toLong()
     val protocolConfig = Config["qq.protocol"]
 
-    val bot = BotFactory.newBot(qq, BotAuthorization.byQRCode()) {
+    val authorization = BotAuthorization.byPassword(Config["qq.pwd"])
+//    val authorization = BotAuthorization.byQRCode()
+    val bot = BotFactory.newBot(qq, authorization) {
         fileBasedDeviceInfo()
         redirectBotLogToDirectory()
         redirectNetworkLogToDirectory()
@@ -42,7 +47,14 @@ private suspend fun init() {
         EmptyCoroutineContext + CoroutineExceptionHandler { _, exception ->
             exception.printStackTrace()
         }) {
-        "状态" reply { BigfuckAPI.nowBossInfo!!.format(BigfuckAPI.bossList!!) }
+        "状态" reply {
+            val healthCalc = BossRemHealthCalc(BigfuckAPI.bossList!!)
+            BigfuckAPI.nowBossInfo!!.day_list.forEach {
+                healthCalc.update(BigfuckAPI.getTeamWarAllUsersAt(it)!!)
+            }
+            BigfuckAPI.nowBossInfo!!.format(healthCalc.result())
+        }
+        "状态2" reply { BigfuckAPI.nowBossInfo!!.format(BigfuckAPI.bossList!!) }
         "查刀" reply { BigfuckAPI.teamWarAllUsers!!.format() }
         "排名" reply {
             val id = BigfuckAPI.nowBossInfo!!.battle_info.id.toInt()
@@ -117,5 +129,12 @@ private suspend fun test() {
 //        )
 //        val timeRange =  yesterday5am().copy(battle_id = id)
 //        listOf(BigfuckAPI.getMyClanRanking(timeRange)!!).format(timeRange).log()
+
+        val healthCalc = BossRemHealthCalc(BigfuckAPI.bossList!!)
+        BigfuckAPI.nowBossInfo!!.day_list.forEach {
+            healthCalc.update(BigfuckAPI.getTeamWarAllUsersAt(it)!!)
+        }
+        BigfuckAPI.nowBossInfo!!.format(healthCalc.result()).log()
+
     }.join()
 }

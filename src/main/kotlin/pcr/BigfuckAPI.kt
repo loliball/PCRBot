@@ -7,7 +7,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import pcr.bean.*
 import utils.Config
-import utils.log
 
 object BigfuckAPI {
 
@@ -34,6 +33,8 @@ object BigfuckAPI {
     val nowBossInfo get() = request<NowBoss>(Bigfuck.nowBOSSInfoUrl)
     val teamWarAllUsers get() = request<MemberInfoList>(Bigfuck.dayUrl)
 
+    fun getTeamWarAllUsersAt(day: String) = request<MemberInfoList>(Bigfuck.getDayUrl(day))
+
     fun getTeamWarInfo(page: Int): String? {
         val json = networkRequest(Bigfuck.getTimelineUrl(page))
         println("getTeamWarInfo($page)$json")
@@ -48,7 +49,7 @@ object BigfuckAPI {
             .build()
         var bodyString: String? = null
         return runCatching {
-            bodyString = client.newCall(request).execute().body?.string()
+            bodyString = client.newCall(request).execute().use { it.body?.string() }
             bodyString?.let { json1 ->
                 val returnData = json.decodeFromString<ReturnData<R>>(json1)
                 if (returnData.invalid()) {
