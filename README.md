@@ -1,8 +1,8 @@
 # PCRBot
 PCR 公主连接国服 Bigfun工会战信息查询  
-本项目直接基于[mirai-core](https://github.com/mamoe/mirai)开发
-目前已经适配新版五个boss一起打的新版会战
-bigfun部分接口返回有错误，查刀，剩余刀结果不准确
+本项目直接基于[mirai-core](https://github.com/mamoe/mirai)开发  
+目前已经适配新版五个boss一起打的新版会战  
+bigfun部分接口返回有错误，查刀，剩余刀结果不准确  
 
 
 # 功能&命令
