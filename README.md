@@ -16,7 +16,7 @@ PCR 公主连接国服 Bigfun工会战信息查询
 ```
 ### 以下命令需要管理员或开发者才能使用  
 ```
-/token [access_token]：设置新的bigfun的token
+/cookie [cookie]：设置新的bigfun的cookie，只需要session-api=xxxxxxxx
 /config ：从文件中重新载入配置，机器人不会重新登陆
 ```
 
@@ -36,7 +36,8 @@ qq.id = qq号
 qq.pwd = qq密码  
 qq.owner = 开发者qq  
 qq.group = 工会战群  
-token = bingfun的access_token  
+qq.protocol = MACOS
+cookie = bingfun网页的cookie
 ```
 
 环境需求java11及以上，启动命令  
@@ -45,7 +46,3 @@ token = bingfun的access_token
 如果出现乱码或者时间错误，请使用  
 ```java -jar -Dfile.encoding=UTF-8 -Duser.timezone=GMT+8 PCRBot-1.0.0.jar```
 
-
-# 关于bigfun的access_token
-可以通过HttpCanary等抓包工具，从请求链接中得到  
-token是一串32位长的数字和小写字母组成的随机字符串
